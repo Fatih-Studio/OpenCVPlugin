@@ -1,13 +1,14 @@
-﻿	#pragma once
+﻿#pragma once
 	
 	#include "PreOpenCVLib.h"
 	#include <opencv2/opencv.hpp>
-	#include <opencv2/aruco.hpp>
+	#include <opencv2/objdetect/aruco_detector.hpp>
 	#include <opencv2/objdetect/aruco_dictionary.hpp>
+	#include <opencv2/objdetect/aruco_board.hpp>
 	#include <opencv2/core/cuda.hpp>
-	#include <opencv2/cudaimgproc.hpp>
-	#include <opencv2/cudaarithm.hpp>
-	#include <opencv2/cudawarping.hpp>
+	// #include <opencv2/cudaimgproc.hpp>
+	// #include <opencv2/cudaarithm.hpp>
+	// #include <opencv2/cudawarping.hpp>
 	#include "PostOpenCVLib.h"
 	
 	#include "OpenCVCamera.h"

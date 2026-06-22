@@ -1,26 +1,29 @@
-﻿#include "OpenCVBlueprintLibrary.h"
+#include "OpenCVBlueprintLibrary.h"
 
 #include "Kismet/KismetSystemLibrary.h"
-static cv::VideoCapture Capture;
+
 
 UOpenCVCamera* UOpenCVBlueprintLibrary::OpenCamera(int32 CameraID)
 {
 	UOpenCVCamera* Camera = NewObject<UOpenCVCamera>();
 	
-	if (Camera->Capture.open(CameraID))
+	Camera->Capture = new cv::VideoCapture();
+	if (Camera->Capture->open(CameraID))
 	{
 		return Camera;
 	}
+	delete Camera->Capture;
+	Camera->Capture = nullptr;
 	return nullptr;
 }
 
 void UOpenCVBlueprintLibrary::CloseCamera(UOpenCVCamera* Camera)
 {
-	if (Camera && Camera->Capture.isOpened())
+	if (Camera && Camera->Capture && Camera->Capture->isOpened())
 	{
 		try
 		{
-			Camera->Capture.release();
+			Camera->Capture->release();
 		}
 		catch (...)
 		{
@@ -87,7 +90,7 @@ void UOpenCVBlueprintLibrary::DetectArucoMarkers(UOpenCVCamera* Camera, EOpenCVA
 	
 	cv::Mat Frame;
 	
-	if (!Camera->Capture.read(Frame))
+	if (!Camera->Capture || !Camera->Capture->read(Frame))
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to read frame"));
 		return;

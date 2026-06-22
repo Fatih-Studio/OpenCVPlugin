@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
@@ -38,6 +38,7 @@ class OPENCVPLUGIN_API UOpenCVCamera : public UObject
 
 public:
 
-	cv::VideoCapture Capture;
-	
+	cv::VideoCapture* Capture = nullptr;
+
+	virtual void BeginDestroy() override;
 };
