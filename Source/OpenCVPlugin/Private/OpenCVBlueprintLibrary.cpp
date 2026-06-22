@@ -5,15 +5,14 @@
 
 UOpenCVCamera* UOpenCVBlueprintLibrary::OpenCamera(int32 CameraID)
 {
-	UOpenCVCamera* Camera = NewObject<UOpenCVCamera>();
-	
-	Camera->Capture = new cv::VideoCapture();
-	if (Camera->Capture->open(CameraID))
+	cv::VideoCapture* Cap = new cv::VideoCapture();
+	if (Cap->open(CameraID))
 	{
+		UOpenCVCamera* Camera = NewObject<UOpenCVCamera>();
+		Camera->Capture = Cap;
 		return Camera;
 	}
-	delete Camera->Capture;
-	Camera->Capture = nullptr;
+	delete Cap;
 	return nullptr;
 }
 
