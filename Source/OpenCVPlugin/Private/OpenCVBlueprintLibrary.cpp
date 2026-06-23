@@ -5,29 +5,34 @@
 
 UOpenCVCamera* UOpenCVBlueprintLibrary::OpenCamera(int32 CameraID)
 {
-	cv::VideoCapture* Cap = new cv::VideoCapture();
-	if (Cap->open(CameraID))
+	UOpenCVCamera* Camera = NewObject<UOpenCVCamera>();
+	Camera->Wrapper = new FCameraWrapper();
+	if (Camera->Wrapper->Capture.open(CameraID))
 	{
-		UOpenCVCamera* Camera = NewObject<UOpenCVCamera>();
-		Camera->Capture = Cap;
 		return Camera;
 	}
-	delete Cap;
+	delete Camera->Wrapper;
+	Camera->Wrapper = nullptr;
 	return nullptr;
 }
 
 void UOpenCVBlueprintLibrary::CloseCamera(UOpenCVCamera* Camera)
 {
-	if (Camera && Camera->Capture && Camera->Capture->isOpened())
+	if (Camera && Camera->Wrapper)
 	{
-		try
+		if (Camera->Wrapper->Capture.isOpened())
 		{
-			Camera->Capture->release();
+			try
+			{
+				Camera->Wrapper->Capture.release();
+			}
+			catch (...)
+			{
+				UKismetSystemLibrary::PrintString(nullptr, TEXT("Failed to release camera."), true, true, FLinearColor::Red, 2.0f);
+			}
 		}
-		catch (...)
-		{
-			UKismetSystemLibrary::PrintString(nullptr, TEXT("Failed to release camera."), true, true, FLinearColor::Red, 2.0f);
-		}
+		delete Camera->Wrapper;
+		Camera->Wrapper = nullptr;
 	}
 }
 
@@ -89,7 +94,7 @@ void UOpenCVBlueprintLibrary::DetectArucoMarkers(UOpenCVCamera* Camera, EOpenCVA
 	
 	cv::Mat Frame;
 	
-	if (!Camera->Capture || !Camera->Capture->read(Frame))
+	if (!Camera->Wrapper || !Camera->Wrapper->Capture.read(Frame))
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to read frame"));
 		return;
@@ -107,14 +112,14 @@ void UOpenCVBlueprintLibrary::DetectArucoMarkers(UOpenCVCamera* Camera, EOpenCVA
 	
 	cv::aruco::ArucoDetector Detector(ArucoDictionary);
 	
-	auto* DetectedMarkerIds = new std::vector<int>();
-	auto* MarkerCorners = new std::vector<std::vector<cv::Point2f>>();
+	std::vector<int> DetectedMarkerIds;
+	std::vector<std::vector<cv::Point2f>> MarkerCorners;
 
-	Detector.detectMarkers(Frame,*MarkerCorners,*DetectedMarkerIds);
+	Detector.detectMarkers(Frame, MarkerCorners, DetectedMarkerIds);
 	
-	if (DetectedMarkerIds->size() > 0)
+	if (DetectedMarkerIds.size() > 0)
 	{
-		for (int Id : *DetectedMarkerIds)
+		for (int Id : DetectedMarkerIds)
 		{
 			MarkerIds.Add(Id);
 		}

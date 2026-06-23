@@ -37,12 +37,19 @@ void FOpenCVPluginModule::ShutdownModule()
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
 	
-	// Unload the DLL from memory when Unreal shuts down
+	// We do NOT free the DLL handle here. 
+	// The OS will clean it up on process exit. 
+	// Explicitly freeing third-party DLLs here is a common cause of exit crashes 
+	// because Garbage Collection might trigger destructors of OpenCV objects (like cv::VideoCapture) 
+	// AFTER this module is unloaded.
+	
+	/*
 	if (OpenCVPluginDLLHandle)
 	{
 		FPlatformProcess::FreeDllHandle(OpenCVPluginDLLHandle);
 		OpenCVPluginDLLHandle = nullptr;
 	}
+	*/
 }
 
 

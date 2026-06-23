@@ -3,20 +3,20 @@
 
 void UOpenCVCamera::BeginDestroy()
 {
-	if (Capture)
+	Super::BeginDestroy();
+}
+
+void UOpenCVCamera::FinishDestroy()
+{
+	if (Wrapper)
 	{
-		cv::VideoCapture* CapToDestroy = Capture;
-		Capture = nullptr;
-		
-		AsyncTask(ENamedThreads::GameThread, [CapToDestroy]()
+		if (Wrapper->Capture.isOpened())
 		{
-			if (CapToDestroy->isOpened())
-			{
-				CapToDestroy->release();
-			}
-			delete CapToDestroy;
-		});
+			Wrapper->Capture.release();
+		}
+		delete Wrapper;
+		Wrapper = nullptr;
 	}
 	
-	Super::BeginDestroy();
+	Super::FinishDestroy();
 }

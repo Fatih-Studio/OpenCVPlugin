@@ -31,6 +31,11 @@ enum class EOpenCVArucoDictSize : uint8
 };
 
 
+struct FCameraWrapper
+{
+	cv::VideoCapture Capture;
+};
+
 UCLASS(BlueprintType)
 class OPENCVPLUGIN_API UOpenCVCamera : public UObject
 {
@@ -38,7 +43,8 @@ class OPENCVPLUGIN_API UOpenCVCamera : public UObject
 
 public:
 
-	cv::VideoCapture* Capture = nullptr;
+	FCameraWrapper* Wrapper = nullptr;
 
 	virtual void BeginDestroy() override;
+	virtual void FinishDestroy() override;
 };
