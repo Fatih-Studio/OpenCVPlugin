@@ -113,17 +113,37 @@ void UOpenCVBlueprintLibrary::DetectArucoMarkers(UOpenCVCamera* Camera, EOpenCVA
 	cv::aruco::ArucoDetector Detector(ArucoDictionary);
 	
 	std::vector<int> DetectedMarkerIds;
-	std::vector<std::vector<cv::Point2f>> MarkerCorners;
+	DetectedMarkerIds.reserve(1000);
+	
+	std::vector<cv::Mat> MarkerCorners;
+	MarkerCorners.reserve(1000);
 
 	Detector.detectMarkers(Frame, MarkerCorners, DetectedMarkerIds);
 	
 	if (DetectedMarkerIds.size() > 0)
 	{
-		for (int Id : DetectedMarkerIds)
+		for (int i = 0; i < DetectedMarkerIds.size(); i++)
 		{
-			MarkerIds.Add(Id);
+			MarkerIds.Add(DetectedMarkerIds[i]);
+			
+			cv::Point2f* Corners = MarkerCorners[i].ptr<cv::Point2f>(0);
+			std::vector<cv::Point> Polygon;
+			for (int j = 0; j < 4; j++)
+			{
+				Polygon.push_back(cv::Point((int)Corners[j].x, (int)Corners[j].y));
+			}
+			cv::polylines(Frame, Polygon, true, cv::Scalar(0, 255, 0), 3);
 		}
 	}
+	
+	if (!Camera->CameraTexture || Camera->CameraTexture->GetSizeX() != Frame.cols || Camera->CameraTexture->GetSizeY() != Frame.rows)
+	{
+		Camera->InitCameraTexture(Frame.cols, Frame.rows);
+	}
+	
+	cv::Mat BGRAFrame;
+	cv::cvtColor(Frame, BGRAFrame, cv::COLOR_BGR2BGRA);
+	Camera->UpdateTextureFromMat(BGRAFrame);
 	
 	bDetected = MarkerIds.Num() > 0;
 }

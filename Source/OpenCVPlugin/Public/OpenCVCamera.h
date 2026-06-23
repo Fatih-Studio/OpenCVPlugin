@@ -45,6 +45,12 @@ public:
 
 	FCameraWrapper* Wrapper = nullptr;
 
+	UPROPERTY(BlueprintReadOnly, Category = "OpenCV")
+	class UTexture2D* CameraTexture = nullptr;
+
 	virtual void BeginDestroy() override;
 	virtual void FinishDestroy() override;
+	
+	void InitCameraTexture(int32 Width, int32 Height);
+	void UpdateTextureFromMat(const cv::Mat& Image);
 };

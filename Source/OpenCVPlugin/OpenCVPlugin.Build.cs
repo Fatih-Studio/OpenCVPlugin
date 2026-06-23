@@ -17,7 +17,9 @@ public class OpenCVPlugin: ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
                 "OpenCVLib",
-                "Projects"
+                "Projects",
+                "RenderCore",
+                "RHI"
             }
         );
 	}
